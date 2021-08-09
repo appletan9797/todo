@@ -1,8 +1,36 @@
+import Checkbox from '@material-ui/core/Checkbox';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import { makeStyles } from '@material-ui/core/styles';
 import { useEffect, useState } from 'react';
 
+const useStyles = makeStyles(theme => ({
+  root: {
+    width: '100%',
+    maxWidth: 360,
+    //marginTop: '35px',
+    //marginLeft: '10px',
+  },
+}));
+
 export function ToDo() {
-  //Default value
-  //var dataField = 'No Data';
+  const classes = useStyles();
+  const [checked, setChecked] = useState([0]);
+
+  const handleToggle = value => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
   const [toDoItem, setToDo] = useState([]);
 
   //Call API (call data from json file)
@@ -39,16 +67,32 @@ export function ToDo() {
 
   return (
     <div>
-      To Do
-      <p> To Do List: </p>
-      <div>
-        <ol>
-          {toDoItem.length > 0 ? toDoItem.map(item => <li>{item.title}</li>) : <li>No Data</li>}
-        </ol>
-      </div>
+      <p>To Do List</p>
+
+      {toDoItem.length > 0 ? (
+        <List className={classes.root}>
+          {toDoItem.map(item => {
+            const labelId = `checkbox-list-label-${item}`;
+
+            return (
+              <ListItem key={item} role={undefined} dense button onClick={handleToggle(item)}>
+                <ListItemIcon>
+                  <Checkbox
+                    edge="start"
+                    checked={checked.indexOf(item) !== -1}
+                    tabIndex={-1}
+                    disableRipple
+                    inputProps={{ 'aria-labelledby': labelId }}
+                  />
+                </ListItemIcon>
+                <ListItemText id={labelId} primary={`${item.title}`} />
+              </ListItem>
+            );
+          })}
+        </List>
+      ) : (
+        <p>No Data</p>
+      )}
     </div>
   );
 }
-
-//{toDoItem && toDoItem.length > 0 && toDoItem.map(item => <li>{item.title}</li>)}
-//<ol>{toDoItem && toDoItem.length > 0 && toDoItem.map(item => <li>{item.title}</li>)}</ol>
